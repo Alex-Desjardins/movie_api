@@ -37,6 +37,13 @@ class APITest < Minitest::Test
       result.values.each do |v|
         assert_equal v.class, String
       end
+      if result[:Type] == "movie"
+        assert_equal result[:Year].to_i.between?(1900,2022), true
+      end
+      if result[:Type] == "series"
+        assert_equal result[:Year][0..3].to_i.between?(1900,2022), true
+        assert_equal result[:Year][-4..-1].to_i.between?(1900,2022), true
+      end
     end
   end
 end
