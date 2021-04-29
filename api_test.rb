@@ -92,4 +92,19 @@ class APITest < Minitest::Test
     end
     assert_equal titles.size == titles.uniq.size, true
   end
+
+  def test_search_results_include_only_movies
+    pages = (1..5)
+    keyword = "thomas"
+    type = "movie"
+    pages.each do |page|
+      url = "http://www.omdbapi.com/?apikey=9b20bff6&s=#{keyword}&page=#{page}&type=#{type}"
+      uri = URI(url)
+      response = Net::HTTP.get(uri)
+      to_json = JSON.parse(response, symbolize_names: true)
+      to_json[:Search].each do |result|
+        assert_includes result[:Type], "movie"
+      end
+    end
+  end
 end
