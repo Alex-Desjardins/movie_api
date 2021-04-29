@@ -5,14 +5,12 @@ require 'json'
 
 class APITest < Minitest::Test
   def test_request_success
-    url = 'http://www.omdbapi.com/?apikey=9b20bff6&s=thomas'
-    uri = URI(url)
-    response = Net::HTTP.get(uri)
-    to_json = JSON.parse(response, symbolize_names: true)
+    keyword = "thomas"
+    results = keyword_search(keyword)
 
-    assert_equal to_json.class, Hash
-    assert_equal to_json[:Search].class, Array
-    assert_equal to_json[:Response], "True"
+    assert_equal results.class, Hash
+    assert_equal results[:Search].class, Array
+    assert_equal results[:Response], "True"
   end
 
   def test_missing_api_key
@@ -27,11 +25,9 @@ class APITest < Minitest::Test
 
   def test_search_for_thomas
     keyword = "thomas"
-    url = "http://www.omdbapi.com/?apikey=9b20bff6&s=#{keyword}"
-    uri = URI(url)
-    response = Net::HTTP.get(uri)
-    to_json = JSON.parse(response, symbolize_names: true)
-    to_json[:Search].each do |result|
+    results = keyword_search(keyword)
+
+    results[:Search].each do |result|
       assert_includes result[:Title], keyword.capitalize || keyword.downcase
       assert_includes result, :Title && :Year && :imdbID && :Type && :Poster
       result.values.each do |v|
@@ -49,12 +45,9 @@ class APITest < Minitest::Test
 
   def test_search_results_have_valid_imdb_id
     keyword = "rush hour"
-    url = "http://www.omdbapi.com/?apikey=9b20bff6&s=#{keyword}"
-    uri = URI(url)
-    response = Net::HTTP.get(uri)
-    to_json = JSON.parse(response, symbolize_names: true)
+    results = keyword_search(keyword)
 
-    to_json[:Search].each do |result|
+    results[:Search].each do |result|
       url = "http://www.omdbapi.com/?apikey=9b20bff6&i=#{result[:imdbID]}"
       uri = URI(url)
       response = Net::HTTP.get(uri)
@@ -65,12 +58,9 @@ class APITest < Minitest::Test
 
   def test_search_results_have_working_poster_links
     keyword = "rush hour"
-    url = "http://www.omdbapi.com/?apikey=9b20bff6&s=#{keyword}"
-    uri = URI(url)
-    response = Net::HTTP.get(uri)
-    to_json = JSON.parse(response, symbolize_names: true)
+    results = keyword_search(keyword)
 
-    to_json[:Search].each do |result|
+    results[:Search].each do |result|
       uri = URI(result[:Poster])
       response = Net::HTTP.get(uri)
       assert_equal response.class, String
@@ -90,6 +80,7 @@ class APITest < Minitest::Test
         titles[result[:Title]] = result[:Year]
       end
     end
+
     assert_equal titles.size == titles.uniq.size, true
   end
 
@@ -102,9 +93,19 @@ class APITest < Minitest::Test
       uri = URI(url)
       response = Net::HTTP.get(uri)
       to_json = JSON.parse(response, symbolize_names: true)
+
       to_json[:Search].each do |result|
         assert_includes result[:Type], "movie"
       end
     end
+  end
+
+  private
+
+  def keyword_search(keyword)
+    url = "http://www.omdbapi.com/?apikey=9b20bff6&s=#{keyword}"
+    uri = URI(url)
+    response = Net::HTTP.get(uri)
+    JSON.parse(response, symbolize_names: true)
   end
 end
