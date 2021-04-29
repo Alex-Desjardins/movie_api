@@ -33,6 +33,7 @@ class APITest < Minitest::Test
     to_json = JSON.parse(response, symbolize_names: true)
     to_json[:Search].each do |result|
       assert_includes result[:Title], keyword.capitalize || keyword.downcase
+      assert_includes result, :Title && :Year && :imdbID && :Type && :Poster
     end
   end
 end
