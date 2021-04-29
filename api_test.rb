@@ -84,7 +84,7 @@ class APITest < Minitest::Test
     assert_equal titles.size == titles.uniq.size, true
   end
 
-  def test_search_results_include_only_movies
+  def test_search_results_include_only_movies_up_to_page_5
     pages = (1..5)
     keyword = "thomas"
     type = "movie"
