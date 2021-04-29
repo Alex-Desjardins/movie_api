@@ -76,4 +76,20 @@ class APITest < Minitest::Test
       assert_equal response.class, String
     end
   end
+
+  def test_no_duplicate_records_up_to_page_5
+    pages = (1..5)
+    keyword = 'thomas'
+    titles = Hash.new
+    pages.each do |page|
+      url = "http://www.omdbapi.com/?apikey=9b20bff6&s=#{keyword}&page=#{page}"
+      uri = URI(url)
+      response = Net::HTTP.get(uri)
+      to_json = JSON.parse(response, symbolize_names: true)
+      to_json[:Search].each do |result|
+        titles[result[:Title]] = result[:Year]
+      end
+    end
+    assert_equal titles.size == titles.uniq.size, true
+  end
 end
