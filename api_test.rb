@@ -62,4 +62,18 @@ class APITest < Minitest::Test
       assert_equal to_json[:Response], "True"
     end
   end
+
+  def test_search_results_have_working_poster_links
+    keyword = "rush hour"
+    url = "http://www.omdbapi.com/?apikey=9b20bff6&s=#{keyword}"
+    uri = URI(url)
+    response = Net::HTTP.get(uri)
+    to_json = JSON.parse(response, symbolize_names: true)
+
+    to_json[:Search].each do |result|
+      uri = URI(result[:Poster])
+      response = Net::HTTP.get(uri)
+      assert_equal response.class, String
+    end
+  end
 end
