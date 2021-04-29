@@ -24,4 +24,15 @@ class APITest < Minitest::Test
     assert_equal to_json[:Response], "False"
     assert_equal to_json[:Error], "No API key provided."
   end
+
+  def test_search_for_thomas
+    keyword = "thomas"
+    url = "http://www.omdbapi.com/?apikey=9b20bff6&s=#{keyword}"
+    uri = URI(url)
+    response = Net::HTTP.get(uri)
+    to_json = JSON.parse(response, symbolize_names: true)
+    to_json[:Search].each do |result|
+      assert_includes result[:Title], keyword.capitalize || keyword.downcase
+    end
+  end
 end
