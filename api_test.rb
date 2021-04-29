@@ -46,4 +46,20 @@ class APITest < Minitest::Test
       end
     end
   end
+
+  def test_search_results_have_valid_imdb_id
+    keyword = "rush hour"
+    url = "http://www.omdbapi.com/?apikey=9b20bff6&s=#{keyword}"
+    uri = URI(url)
+    response = Net::HTTP.get(uri)
+    to_json = JSON.parse(response, symbolize_names: true)
+
+    to_json[:Search].each do |result|
+      url = "http://www.omdbapi.com/?apikey=9b20bff6&i=#{result[:imdbID]}"
+      uri = URI(url)
+      response = Net::HTTP.get(uri)
+      to_json = JSON.parse(response, symbolize_names: true)
+      assert_equal to_json[:Response], "True"
+    end
+  end
 end
