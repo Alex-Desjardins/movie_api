@@ -34,6 +34,9 @@ class APITest < Minitest::Test
     to_json[:Search].each do |result|
       assert_includes result[:Title], keyword.capitalize || keyword.downcase
       assert_includes result, :Title && :Year && :imdbID && :Type && :Poster
+      result.values.each do |v|
+        assert_equal v.class, String
+      end
     end
   end
 end
